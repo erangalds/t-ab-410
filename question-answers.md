@@ -5643,3 +5643,475 @@ Either of the following two valid sequences satisfies the Power Automate runtime
 5. **Exam Trap / Tip:**
 * **`Notify()` vs. `Trace()`:** A classic Power Fx exam distinction is audience visibility. Always map **"user-facing error feedback" / "display messages to users"** to **`Notify()`** (visible UI banner), and map **"administrator/developer diagnostics" / "Application Insights / Monitor telemetry"** to **`Trace()`** (invisible background logging).
 
+
+## Q85
+
+![Q85](/question-images/q51-100/85.png)
+
+
+### 1. Extracted Question Summary
+
+* **Scenario:** You make three customizations to a Microsoft Dataverse environment:
+1. Create a new table.
+2. Add data to the new table.
+3. Delete an unused area from the site map.
+
+
+* **Task:** Match each component to the required transportation method to move it to a different environment (methods may be used once, more than once, or not at all).
+* **Available Methods:**
+* `Configuration Migration tool`
+* `Solution`
+* `SolutionPackager tool`
+
+
+* **Answer Area Targets:**
+* `New table`
+* `Data for the new table`
+* `Site map`
+
+
+
+
+
+### 2. Correct Answer
+
+* **New table:** **Solution**
+* **Data for the new table:** **Configuration Migration tool**
+* **Site map:** **Solution**
+
+### 4. Official Microsoft Justification
+
+* **Schema and Metadata via Solutions:** Per Microsoft Power Platform Application Lifecycle Management (ALM) documentation, Dataverse solutions are the standard mechanism for transporting schema, metadata, and UI navigation customizations across environments. Both custom **tables** (definitions/columns/relationships) and **site maps** are solution-aware metadata components.
+* **Deletion Behavior in Managed Solutions:** When you delete an unused area from a site map in a development environment and export that updated site map inside a **managed solution**, importing it into a target environment overwrites/merges the active solution layer appropriately, removing the unused area from the rendered navigation.
+* **Reference Data via Configuration Migration Tool:** Solutions only transport metadata/schema, never table records (data). To move configuration or reference data across environments while preserving record GUIDs and relationships, Microsoft provides the **Configuration Migration tool** (`DataMigrationUtility.exe` / PAC CLI `pac data`).
+
+### 5. Distractor Analysis (Why Others Are Wrong)
+
+* **SolutionPackager tool:** This command-line tool unpacks a compressed solution `.zip` file into individual XML/JSON source files for source control (Git/Azure DevOps) and repacks them back into a `.zip` file. It manages source-control decomposition, not environment-to-environment transport of individual components or table records.
+* **Using Solution for "Data for the new table":** Solutions are strictly metadata containers; adding a table to a solution includes its schema, forms, and views, but zero rows of data.
+* **Using Configuration Migration tool for "New table" or "Site map":** The Configuration Migration tool strictly exports and imports record data based on an existing schema; it cannot create new tables or modify site map XML definitions in the target environment.
+
+### 6. Exam Keyword / Trap Alert
+
+* **Trigger Phrase:** Whenever a question asks how to transport **data / records** (such as lookup values, configuration records, or rows added to a table) alongside schema changes, immediately pair **Configuration Migration tool** with the data requirement and **Solution** with all metadata/UI components (tables, forms, views, site maps).
+* **Common Trap:** Candidates often hesitate to select **Solution** when the prompt mentions *"Delete an unused area from the site map,"* confusing component deletion (which requires Upgrade/Stage for Upgrade when deleting an *entire* component from a managed solution) with editing the internal XML of a site map component (removing an area inside the site map designer simply updates the site map definition transported by a standard solution).
+
+
+
+## Q86
+
+![Q86](/question-images/q51-100/86.png)
+
+### 1. Extracted Question Summary
+
+* **Scenario:** A company is implementing Power Apps and Power Automate. Several components are created within Power Apps, Microsoft Dataverse, and Power Automate, and they must be promoted from the development environment to the user acceptance test (UAT) environment in a single solution package.
+* **Question:** Where should you create the package?
+* **Options:**
+* A. Office 365 admin center
+* B. Power Apps maker portal
+* C. Azure portal
+* D. Microsoft Power Platform admin center
+
+
+
+
+
+### 2. Correct Answer
+
+* **B. Power Apps maker portal**
+
+
+
+### 3. Verification of Visible Selection / Community Key
+
+* **Correct:** The visible selection (**B. Power Apps maker portal**, marked `Most Voted` and `Answer: B`) is accurate because Dataverse solutions for bundling Power Apps, Dataverse, and Power Automate components are created, managed, and exported directly within the Power Apps maker portal (`make.powerapps.com`).
+
+
+
+### 4. Official Microsoft Justification
+
+* **Unified Solution Management in the Maker Portal:** According to Microsoft Power Platform Application Lifecycle Management (ALM) documentation, solutions are the primary mechanism for packaging and transporting related customizations—including apps, cloud flows, tables, security roles, and environment variables—across environments.
+* **Where Solutions Are Built:** Makers create, edit, add existing components to, and export solutions (as managed or unmanaged `.zip` packages) in the **Power Apps maker portal** (`make.powerapps.com`) under the **Solutions** navigation pane (the same unified Dataverse solution interface is also surfaced inside `make.powerautomate.com`, though `make.powerapps.com` is the primary authoring hub).
+
+### 5. Distractor Analysis (Why Others Are Wrong)
+
+* **A. Office 365 admin center (now Microsoft 365 admin center):** Used for tenant-level user licensing, billing, domain management, and Microsoft 365 service settings, not for building or exporting Power Platform solution packages.
+* **C. Azure portal:** Used for managing Microsoft Azure infrastructure, Microsoft Entra ID, Azure Key Vault, and cloud resources, not Power Platform Dataverse solutions.
+* **D. Microsoft Power Platform admin center:** Used by administrators for environment lifecycle operations (creating/copying/backing up environments), Data Loss Prevention (DLP) policies, capacity monitoring, and tenant governance—not for authoring or packaging developer solutions.
+
+### 6. Exam Keyword / Trap Alert
+
+* **Trigger Phrase:** Look for **"promote components... in a single solution package"** or **"create/export a solution"**—solution authoring and packaging always happen in the **Power Apps maker portal** (`make.powerapps.com`), whereas environment provisioning and DLP governance belong to the **Microsoft Power Platform admin center** (`admin.powerplatform.microsoft.com`).
+* **Common Trap:** Candidates frequently confuse the **Power Apps maker portal** with the **Microsoft Power Platform admin center** (Option D) because "promoting environments" sounds like an administrative task; remember that makers package solutions in the maker portal, while admins manage environments in the admin center.
+
+
+
+## Q87
+
+![Q87](/question-images/q51-100/87.png)
+
+
+### 1. Extracted Question Summary
+
+* **Scenario:** A company is updating a Power Apps solution that contains two tables named **Services** and **Equipment**. They are creating a new solution to update the current solution with the following requirements:
+* The **Services** table must be updated to include **change tracking**.
+* The **Equipment** table must be updated to include **four new columns**.
+* The solution must update **only the components that need to be added or changed** (table segmentation).
+
+
+* **Task:** Match each table to the appropriate table inclusion option when adding existing tables to the solution (options may be used once, more than once, or not at all).
+* **Available Options:**
+* `Include all components`
+* `Include table metadata`
+* `Select components`
+
+
+* **Answer Area Targets:**
+* `Services`
+* `Equipment`
+
+
+
+
+
+### 2. Correct Answer
+
+* **Services:** **Include table metadata**
+* **Equipment:** **Select components**
+
+### 4. Official Microsoft Justification
+
+* **Table Segmentation in Power Apps Solutions:** Per Microsoft Power Platform ALM documentation (*Organize solutions* / *Add existing tables to a solution*), when adding an existing Dataverse table to a solution, you can segment what gets packaged to avoid unnecessary dependencies and keep solution patches/updates minimal:
+* **Include table metadata:** Packages only the table-level properties and settings (such as **change tracking**, auditing, offline capability, and primary name settings) without pulling in any subcomponents (columns, forms, views, relationships, business rules). Because the **Services** table only requires enabling **change tracking** (a table-level property), **Include table metadata** satisfies the requirement with zero extra subcomponents.
+* **Select components:** Opens the subcomponent picker so you can explicitly choose only the specific columns, forms, views, or relationships to include. Because the **Equipment** table requires adding **four new columns** while updating *only* the changed/added components, **Select components** lets you pick strictly those four columns without pulling in the entire table definition or unrelated forms/views.
+
+
+
+### 5. Distractor Analysis (Why Others Are Wrong)
+
+* **Include all components:** Pulls the entire table—all metadata, every existing column, form, view, relationship, chart, and business rule—into the solution. This directly violates the explicit requirement that *"the solution must update only the components that need to be added or changed."*
+* **Using `Select components` for `Services`:** The subcomponent picker (`Select components`) lets you select child objects (columns, views, forms, relationships), whereas table-level settings like **change tracking** are governed by the **Include table metadata** checkbox.
+* **Using `Include table metadata` for `Equipment`:** Including only table metadata omits all columns, meaning the four new columns on the **Equipment** table would not be packaged in the solution.
+
+### 6. Exam Keyword / Trap Alert
+
+* **Trigger Phrases:**
+* **"Change tracking" / "Auditing" / "Table properties"** + *"update only changed components"* $\rightarrow$ **Include table metadata**.
+* **"New columns" / "Specific view or form"** + *"update only changed components"* $\rightarrow$ **Select components**.
+
+
+* **Common Trap:** Candidates often overlook **Include table metadata** and pick **Select components** for both tables, forgetting that table-level toggles like **change tracking** live in table metadata rather than as selectable child components.
+
+
+## Q88
+
+![88v1](/question-images/q51-100/88v1.png)
+
+![88v2](/question-images/q51-100/88v2.png)
+
+
+### 1. Extracted Question Summary
+
+* **Scenario:** A company is implementing a data model in Microsoft Dataverse and requires four columns in a new custom table, using the column type that consumes the **least amount of database storage** for each requirement:
+1. **Special Notes:** Must contain string data that stores **100 characters** and be rendered as a **multiline control**.
+2. **Specification:** Must contain string data that stores **up to 8,000 characters** and be rendered as a **multiline control**.
+3. **Student:** Must contain an input control that can store a reference to an **account or a contact** in the system.
+4. **Course Type:** Must contain a list of predefined options where users can select **only one option**.
+
+
+* **Dropdown Options per Column:**
+* **Special Notes:** `Text`, `Text Area`, `Multiline Text`
+* **Specification:** `Text`, `Text Area`, `Multiline Text`
+* **Student:** `Choices`, `Customer`, `Lookup`
+* **Course Type:** `Choice`, `Choices`, `Lookup`
+
+
+
+
+
+### 2. Correct Answer
+
+* **Special Notes:** **Text Area**
+* **Specification:** **Multiline Text**
+* **Student:** **Customer**
+* **Course Type:** **Choice**
+
+### 4. Official Microsoft Justification
+
+* **Dataverse String Column Types & Storage Optimization:** Per Microsoft Dataverse column data type documentation (*Types of columns*):
+* **Text Area** (`Single line of text` with format `Text Area`, up to 4,000 characters) renders as a multiline text box on forms while remaining a standard `nvarchar(n)` column in SQL storage—using far less storage overhead than a `Multiline Text` (`ntext`/`nvarchar(max)`) column. For 100 characters rendered as a multiline control, **Text Area** is the most storage-efficient valid option.
+* **Multiline Text** (`Multiple lines of text`, up to 1,048,576 characters) is required whenever a string exceeds the 4,000-character limit of `Text` and `Text Area`. Since **Specification** must store up to **8,000 characters**, **Multiline Text** is the only capable option.
+
+
+* **Polymorphic Account/Contact Reference (`Customer`):** Dataverse provides a specialized **Customer** lookup data type that creates a polymorphic relationship allowing a single column to reference either an **Account** or a **Contact** record.
+* **Single-Select Option Set (`Choice`):** A **Choice** column stores a single integer value representing one selected item from a predefined list of options, whereas **Choices** stores multiple comma-separated integer values for multi-select scenarios.
+
+### 5. Distractor Analysis (Why Others Are Wrong)
+
+* **Special Notes — `Text` vs. `Multiline Text`:** `Text` (Single line of text with `Text` format) renders as a single-line input box rather than a multiline control. `Multiline Text` supports multiline rendering, but allocates `nvarchar(max)` storage, violating the requirement to use the *least amount of database storage* when 100 characters fits easily inside `Text Area` (max 4,000).
+* **Specification — `Text` and `Text Area`:** Both `Text` and `Text Area` have a hard maximum length of **4,000 characters** in Dataverse and cannot store 8,000 characters.
+* **Student — `Lookup` and `Choices`:** A standard **Lookup** column targets only *one* specific table (either Account *or* Contact, not both). **Choices** stores predefined option-set values, not references to table records.
+* **Course Type — `Choices` and `Lookup`:** **Choices** allows users to select *multiple* options simultaneously, violating the single-selection requirement. **Lookup** references records in another Dataverse table rather than a lightweight predefined option list, consuming significantly more database storage and relational overhead.
+
+### 6. Exam Keyword / Trap Alert
+
+* **Trigger Phrases:**
+* **"100 characters" + "multiline control" + "least amount of database storage"** $\rightarrow$ Always pick **Text Area** (max 4,000 chars), NOT `Multiline Text`. Anything over **4,000 characters** (e.g., 8,000 characters) forces **Multiline Text**.
+* **"Reference to an account or a contact"** $\rightarrow$ Always **Customer** (polymorphic lookup).
+* **"Select only one option"** $\rightarrow$ **Choice** (singular) vs. **Choices** (plural, multi-select).
+
+
+## Q89
+
+![89](/question-images/q51-100/89.png)
+
+### 1. Extracted Question Summary
+
+* **Scenario:** You plan to add a new column to a system table in Dataverse and move the changes to a test environment when complete. You create a new development environment to make the changes.
+* **Requirements:**
+* Must be clearly identified so that they are not confused with system components and components from other solutions.
+* Must not affect any existing components in the test environment.
+
+
+* **Task:** Select and arrange four actions in the correct sequence to prepare a solution for deployment to the test environment.
+* **Available Actions:**
+* `Run the solution checker on the solution.`
+* `Select a managed solution and add the correct publisher.`
+* `Choose an existing publisher.`
+* `Create a new publisher.`
+* `Add the table to the solution and add the new column.`
+* `Create a new unmanaged solution and select the correct publisher.`
+* `Add the table with all components to the solution.`
+
+
+
+
+
+### 2. Correct Answer
+
+1. **Create a new publisher.**
+2. **Create a new unmanaged solution and select the correct publisher.**
+3. **Add the table to the solution and add the new column.**
+4. **Run the solution checker on the solution.**
+
+### 4. Official Microsoft Justification
+
+* **Publisher Prefix Isolation (`Create a new publisher`):** Per Microsoft Power Platform ALM documentation (*Solution publisher* and *Create a solution*), every solution requires a publisher that defines a unique customization prefix (e.g., `contoso_`) and option value prefix. Because you just created a **new development environment** and must ensure components are clearly identified and not confused with system components or other solutions, creating a dedicated custom publisher first ensures your new column receives a distinct schema prefix.
+* **Unmanaged Authoring (`Create a new unmanaged solution and select the correct publisher`):** All active development and customization in a development environment must occur inside an **unmanaged solution** linked to your custom publisher (solutions are only exported as *managed* when deploying downstream to Test/Production).
+* **Table Segmentation (`Add the table to the solution and add the new column`):** When customizing a system table, you add the existing table without selecting *all components* (table segmentation) and create/include only the new column so you do not overwrite or affect existing components in the target test environment.
+* **Pre-Deployment Validation (`Run the solution checker on the solution`):** Before exporting and deploying a solution to a test environment, Microsoft recommends running the **Solution Checker** to perform static analysis against best-practice rules and catch performance, security, or dependency issues early.
+
+### 5. Distractor Analysis (Why Others Are Wrong)
+
+* **Select a managed solution and add the correct publisher:** You cannot create or directly author new columns inside a *managed* solution in a development environment; you always author in an **unmanaged** solution and choose *Managed* during the export step.
+* **Choose an existing publisher:** Because you created a brand-new development environment, only default publishers (such as the Default Publisher with the generic `new_` prefix or `crXXX_`) exist; using them risks prefix collisions and confusion with other solutions.
+* **Add the table with all components to the solution:** Including *all* subcomponents of a system table pulls in unmodified forms, views, and columns, risking unintended overwrites and violating the requirement that changes *"must not affect any existing components in the test environment."*
+
+### 6. Exam Keyword / Trap Alert
+
+* **Trigger Phrases:**
+* **"New development environment"** + **"clearly identified / not confused with system components"** $\rightarrow$ Always start with **Create a new publisher** (to establish a custom schema prefix) before creating the **unmanaged solution**.
+* **"Must not affect any existing components"** $\rightarrow$ Avoid *"with all components"* and pick **Add the table to the solution and add the new column** (segmented table inclusion).
+
+
+## Q90
+
+![Q90](/question-images/q51-100/90.png)
+
+### 1. Extracted Question Summary
+
+* **Scenario:** You are creating a one-to-many ($1:N$) relationship between the **Vendor** (parent) and **Shipment** (child) Dataverse tables, and you must ensure that all child records (`Shipment`) are deleted when the parent record (`Vendor`) is deleted.
+* **Answer Area Targets & Dropdown Options:**
+* **Define how shipments link to a vendor:**
+* `Create an alternate key on the Vendor table.`
+* `Add a lookup column to Vendor on the Shipment table.`
+* `Add a lookup column to Shipment on the Vendor table.`
+
+
+* **Ensure that related shipments are deleted:**
+* `Restrict`
+* `Cascade All`
+* `Remove Link`
+
+
+
+
+
+
+
+### 2. Correct Answer
+
+* **Define how shipments link to a vendor:** **Add a lookup column to Vendor on the Shipment table.**
+* **Ensure that related shipments are deleted:** **Cascade All**
+
+### 4. Official Microsoft Justification
+
+* **One-to-Many ($1:N$) Relationship Modeling:** Per Microsoft Dataverse documentation (*Create and edit 1:N (one-to-many) or N:1 (many-to-one) table relationships*), in a $1:N$ relationship between a parent table (**Vendor**) and a child table (**Shipment**), the foreign key reference is always stored as a **Lookup column on the child ("many") table** pointing to the parent ("one") table—meaning you add a lookup column to **Vendor** on the **Shipment** table.
+* **Cascading Delete Behavior (`Cascade All`):** Under Dataverse relationship behaviors (specifically the **Delete** action within *Parental* or *Custom* relationship behavior), setting Delete to **Cascade All** ensures that when a parent **Vendor** record is deleted, all related child **Shipment** records are automatically deleted as well.
+
+### 5. Distractor Analysis (Why Others Are Wrong)
+
+* **Create an alternate key on the Vendor table:** Alternate keys uniquely identify records using non-GUID columns (commonly used for external data integration/upsert operations), not for establishing a $1:N$ parent-child table relationship.
+* **Add a lookup column to Shipment on the Vendor table:** This reverses the relationship direction, making **Shipment** the parent ("one") and **Vendor** the child ("many"), allowing each vendor to link to only one shipment rather than one vendor having many shipments.
+* **Restrict:** Prevents the parent **Vendor** record from being deleted as long as any related child **Shipment** records still exist.
+* **Remove Link:** Deletes the parent **Vendor** record and clears (nulls out) the lookup column on all related **Shipment** records, leaving the child shipment records intact rather than deleting them.
+
+### 6. Exam Keyword / Trap Alert
+
+* **Trigger Phrases:**
+* **"One-to-many relationship between [Parent] and [Child]"** $\rightarrow$ Always place the **Lookup column to [Parent] on the [Child] table** (the lookup always lives on the "Many" side).
+* **"All child records are deleted when the parent record is deleted"** $\rightarrow$ **Cascade All** (also the default Delete behavior when choosing the **Parental** relationship type).
+
+
+## Q91
+
+![Q91](/question-images/q51-100/91v1.png)
+
+![alt text](/question-images/q51-100/91v2.png)
+
+
+### 1. Extracted Question Summary
+
+* **Scenario:** A company is building a Power Platform solution that integrates with external AI services and enforces internal business rules within Microsoft Dataverse.
+* **Requirements & Dropdown Options:**
+* **Call external REST API** (from a background automation):
+* `Dataverse classic workflow`
+* `Form scripts`
+* `Custom connector`
+* `Power Platform Dataflow`
+
+
+* **Execute server-side validation logic:**
+* `Plugin`
+* `Form scripts`
+* `Custom connector`
+* `Power Platform Dataflow`
+
+
+
+
+
+
+
+### 2. Correct Answer
+
+* **Call external REST API:** **Custom connector**
+* **Execute server-side validation logic:** **Plugin**
+
+### 4. Official Microsoft Justification
+
+* **REST API Integration (`Custom connector`):** Per Microsoft Power Platform extensibility documentation (*Use custom connectors in Power Automate and Power Apps*), a **Custom connector** wraps an external REST API (via an OpenAPI/Swagger definition, Postman collection, or from scratch) so background automations like Power Automate cloud flows and Copilot Studio agents can invoke external HTTP endpoints securely with authentication and strongly typed schemas.
+* **Server-Side Validation (`Plugin`):** Per Microsoft Dataverse developer documentation (*Use plug-ins to extend business processes*), a **Plug-in** is custom .NET code registered on specific Dataverse Event Execution Pipeline stages (such as `PreValidation` or `PreOperation`). Because plug-ins execute synchronously on the server inside the Dataverse database transaction, they enforce data integrity and validation rules regardless of how records are created or updated (UI, API, or background flow).
+
+### 5. Distractor Analysis (Why Others Are Wrong)
+
+* **Dataverse classic workflow:** Legacy no-code automation engine that cannot natively invoke arbitrary external REST APIs without writing custom .NET workflow activities—and Microsoft officially recommends Power Automate + Custom Connectors instead.
+* **Form scripts:** Client-side JavaScript web resources that run strictly inside a user's browser on model-driven app forms (`OnLoad`, `OnChange`, `OnSave`). They cannot run in background automations and do not enforce server-side validation when data is modified via APIs or flows.
+* **Power Platform Dataflow:** Used for scheduled self-service ETL (extract, transform, load) data ingestion into Dataverse or Azure Data Lake using Power Query, not for transactional REST API calls in background workflows or synchronous server-side validation.
+
+### 6. Exam Keyword / Trap Alert
+
+* **Trigger Phrases:**
+* **"Call an external REST API"** $\rightarrow$ **Custom connector**.
+* **"Server-side validation logic"** $\rightarrow$ **Plugin** (always contrast server-side **Plugin** against client-side **Form scripts**).
+
+
+## Q92
+![Q92](/question-images/q51-100/92.png)
+
+### 1. Extracted Question Summary
+
+* **Scenario:** A company uses Microsoft Copilot Studio to generate responses for customer support scenarios. You need to configure a prompt action to meet two requirements:
+1. Accept customer name and case description.
+2. Pass values from captured form responses (captured from responses in the conversation).
+
+
+* **Available Configurations:**
+* `Define input variables.`
+* `Map conversation variables.`
+* `Increase the temperature setting.`
+* `Configure content moderation level.`
+
+
+* **Answer Area Targets:**
+* `Accept customer name and case description.`
+* `Pass values from captured form responses.`
+
+
+
+
+
+### 2. Correct Answer
+
+* **Accept customer name and case description:** **Define input variables.**
+* **Pass values from captured form responses:** **Map conversation variables.**
+
+### 4. Official Microsoft Justification
+
+* **Defining Prompt Parameters (`Define input variables`):** Per Microsoft Copilot Studio and AI Builder prompt documentation (*Add inputs to a prompt* / *Use a prompt action in Copilot Studio*), to allow a custom prompt to dynamically accept runtime values such as a customer's name and case description, you first declare **input variables** inside the prompt builder and insert them into the prompt instructions.
+* **Binding Runtime Topic/Form Data (`Map conversation variables`):** When a prompt is added as a tool/action inside a Copilot Studio topic (for example, after an Adaptive Card form or Question node captures user responses into topic/conversation variables), you wire those captured runtime values into the prompt's inputs by **mapping conversation variables** (or Power Fx expressions referencing those variables) in the prompt node's **Inputs** configuration pane.
+
+### 5. Distractor Analysis (Why Others Are Wrong)
+
+* **Increase the temperature setting:** Controls the randomness/creativity of the generative model's output (higher values produce more varied phrasing, while lower values produce more deterministic responses). It does not define input parameters or pass runtime data into the prompt.
+* **Configure content moderation level:** Adjusts the safety filtering threshold (Low, Medium, High) for harmful or inappropriate content in generative responses; it has nothing to do with accepting dynamic fields or binding captured form variables.
+
+### 6. Exam Keyword / Trap Alert
+
+* **Trigger Phrases:**
+* **"Prompt must accept [field 1] and [field 2]"** $\rightarrow$ **Define input variables** (schema definition inside the prompt).
+* **"Pass values from captured form responses"** $\rightarrow$ **Map conversation variables** (runtime binding inside the Copilot Studio topic/action).
+
+
+## Q93
+![Q93](/question-images/q51-100/93.png)
+
+### 1. Extracted Question Summary
+
+* **Scenario:** A company uses a Power Automate cloud flow to synchronize systems and reports two issues:
+1. Intermittent failures caused by temporary service issues (`Intermittent failures`).
+2. Action failures caused by execution time limits (`Takes too long to run`).
+
+
+* **Answer Area Targets & Dropdown Options:**
+* **Intermittent failures:**
+* `Configure concurrency control.`
+* `Enable a retry policy.`
+* `Configure run after settings.`
+
+
+* **Takes too long to run:**
+* `Add delay before action.`
+* `Increase the timeout setting.`
+* `Configure run after settings.`
+
+
+
+
+
+
+
+### 2. Correct Answer
+
+* **Intermittent failures:** **Enable a retry policy.**
+* **Takes too long to run:** **Increase the timeout setting.**
+
+### 4. Official Microsoft Justification
+
+* **Handling Transient Failures (`Enable a retry policy`):** Per Microsoft Power Automate documentation (*Handle errors in cloud flows* / *Retry policy*), transient network glitches, HTTP `429` throttling, or temporary `5xx` service outages are mitigated by configuring an action's **Retry Policy** (such as *Exponential Interval* or *Fixed Interval* with a specified retry count and interval) in the action's **Settings** pane.
+* **Extending Action Duration (`Increase the timeout setting`):** Per Power Automate action settings documentation (*Timeout*), individual actions (especially long-running HTTP calls, custom connectors, or approval/webhook actions) can fail if they exceed their default execution duration limit. Configuring the **Timeout** setting using ISO 8601 duration format (e.g., `PT30M` or `P1D`) extends how long Power Automate waits for the action to complete before timing out.
+
+### 5. Distractor Analysis (Why Others Are Wrong)
+
+* **Configure concurrency control:** Controls the degree of parallelism (how many instances of a trigger or `Apply to each` loop execute simultaneously). Turning it down can help avoid API throttling, but it does not automatically retry an action when a temporary service failure occurs.
+* **Configure run after settings:** Defines downstream branching logic *after* an action completes, fails, is skipped, or times out (for example, sending a failure notification or executing a `try/catch` cleanup scope). It handles the aftermath of a failure rather than preventing intermittent failures or extending an action's execution time limit.
+* **Add delay before action:** Pauses the flow for a fixed duration before starting the action; it does not increase the maximum allowed execution time limit once the action actually begins running.
+
+### 6. Exam Keyword / Trap Alert
+
+* **Trigger Phrases:**
+* **"Intermittent failures / temporary service issues / transient errors"** $\rightarrow$ **Enable a retry policy**.
+* **"Execution time limits / takes too long to run"** $\rightarrow$ **Increase the timeout setting** (remember ISO 8601 duration syntax like `PT10M` or `P2D` if tested on format).
+
+
+
