@@ -6114,4 +6114,786 @@ Either of the following two valid sequences satisfies the Power Automate runtime
 * **"Execution time limits / takes too long to run"** $\rightarrow$ **Increase the timeout setting** (remember ISO 8601 duration syntax like `PT10M` or `P2D` if tested on format).
 
 
+## Q94
+
+![94](/question-images/q51-100/94.png)
+
+### 1. Extracted Question Summary
+
+* **Scenario:** A company is configuring Dataverse business rules for a table used in both a model-driven app and a separate canvas app.
+* **Requirements:**
+1. If **Total Revenue** exceeds **$50,000**, set **Priority** to **High**.
+2. If **Priority** is set to **High**, hide the **Total Revenue** column on the **model-driven app forms only**.
+3. **Configuration effort must be minimized.**
+
+
+* **Available Configurations:**
+* `Create a single business rule. Set scope to Entity.`
+* `Create a single business rule. Set scope to All Forms.`
+* `Create a business rule for each form. Set scope to All Forms.`
+* `Create a business rule for each form. Set scope to each form.`
+
+
+* **Answer Area Targets (`Business rule execution structure`):**
+* `Set Priority based on Total Revenue.`
+* `Hide Total Revenue.`
+
+
+
+
+
+### 2. Correct Answer
+
+* **Set Priority based on Total Revenue:** **Create a single business rule. Set scope to Entity.**
+* **Hide Total Revenue:** **Create a single business rule. Set scope to All Forms.**
+
+### 4. Official Microsoft Justification
+
+* **Server-Side Execution across All Apps (`Entity` scope):** Per Microsoft Dataverse documentation (*Create a business rule for a table* / *Business rule scope*), setting a business rule's scope to **Entity** runs the rule on the server whenever data is created or updated—including from **canvas apps**, model-driven apps, and APIs. However, `Entity`-scoped rules only support data-manipulation actions (such as *Set field value*, *Set default value*, *Clear field value*, and *Show error message*) and **cannot** execute UI-only actions like hiding/showing columns. Therefore, setting **Priority** to **High** across both the model-driven app and canvas app requires a single rule with scope set to **Entity**.
+* **Client-Side Form UI Execution (`All Forms` scope):** UI actions such as **Set visibility** (hiding the **Total Revenue** column) only execute client-side on model-driven app forms. Setting the scope of a single business rule to **All Forms** applies the rule automatically to every main and quick-create form in the model-driven app while minimizing configuration effort (requiring only one rule instead of duplicating rules per form).
+
+### 5. Distractor Analysis (Why Others Are Wrong)
+
+* **Create a business rule for each form. Set scope to All Forms:** Contradicts itself and violates the requirement to **minimize configuration effort**—setting scope to *All Forms* already applies one rule across every form.
+* **Create a business rule for each form. Set scope to each form:** Duplicates the exact same rule across individual forms unnecessarily, failing the requirement that *"configuration effort must be minimized."*
+* **Using `All Forms` for "Set Priority based on Total Revenue":** Business rules scoped to `All Forms` run exclusively client-side in model-driven app forms and do **not** trigger when records are created or modified through the **separate canvas app**.
+* **Using `Entity` for "Hide Total Revenue":** `Entity`-scoped business rules run on the server and do not support UI visibility actions (*Hide/Show column*).
+
+### 6. Exam Keyword / Trap Alert
+
+* **Trigger Phrases:**
+* **"Separate canvas app is also set up"** + **Data action (`Set Priority`)** $\rightarrow$ **Set scope to Entity** (only `Entity` scope runs server-side for canvas apps).
+* **"Hide [column] on the model-driven app forms only"** + **"Configuration effort must be minimized"** $\rightarrow$ **Create a single business rule. Set scope to All Forms**.
+
+
+## Q95
+
+![95](/question-images/q51-100/95.png)
+
+### 1. Extracted Question Summary
+
+* **Scenario:** A company builds a Power Automate cloud flow that analyzes customer messages using a custom AI Builder / Power Platform prompt.
+* **Requirements (`Prompt execution sequence`):**
+1. `Start the process.` (Start the workflow process.)
+2. `Prepare data.` (Prepare message data for the prompt.)
+3. `Evaluate data.` (Evaluate the data by using the prompt.)
+4. `Store results.` (Store the analysis results.)
+
+
+* **Available Actions:**
+* `execute prompt`
+* `define trigger event`
+* `set output in variable`
+* `configure data parameters`
+
+
+
+
+
+### 2. Correct Answer
+
+* **Start the process:** **define trigger event**
+* **Prepare data:** **configure data parameters**
+* **Evaluate data:** **execute prompt**
+* **Store results:** **set output in variable**
+
+### 4. Official Microsoft Justification
+
+* **End-to-End Prompt Execution Lifecycle in Power Automate:** Per Microsoft Power Platform / AI Builder documentation (*Use your prompt in Power Automate* / *Create text with GPT using a prompt*), integrating a custom prompt into a cloud flow follows a four-stage orchestration pipeline:
+1. **Initiation (`define trigger event`):** Every cloud flow begins with a trigger event (e.g., *When a new email arrives* or *When a row is added in Dataverse*) that initiates the workflow when a customer message arrives.
+2. **Input Preparation (`configure data parameters`):** Before invoking the model, you format/prepare and map the incoming message payload into the prompt's defined input parameters.
+3. **Model Inference (`execute prompt`):** The **Run a prompt** action executes the custom prompt against the prepared input data to generate the analysis.
+4. **Output Persistence (`set output in variable`):** Downstream actions capture the prompt's structured/text response (`Text` or JSON properties) into a flow variable or target column so the analysis results can be persisted or reused in subsequent workflow steps.
+
+
+
+### 5. Distractor Analysis (Why Others Are Wrong)
+
+* Because all four draggable actions map one-to-one in chronological execution order (`define trigger event` $\rightarrow$ `configure data parameters` $\rightarrow$ `execute prompt` $\rightarrow$ `set output in variable`), any swap between stages violates the execution lifecycle of a Power Automate flow—for instance, you cannot execute a prompt before configuring its input data parameters, nor can you store output variables before the prompt executes.
+
+### 6. Exam Keyword / Trap Alert
+
+* **Trigger Phrases:** Match the four lifecycle verbs directly to their architectural equivalents: **Start** $\rightarrow$ `define trigger event`, **Prepare** $\rightarrow$ `configure data parameters`, **Evaluate** $\rightarrow$ `execute prompt`, and **Store** $\rightarrow$ `set output in variable`.
+
+
+## Q96
+
+![96](/question-images/q51-100/96.png)
+
+### 1. Extracted Question Summary
+
+* **Scenario:** A company plans to send escalation emails to customers with overdue invoices. You are creating a Microsoft Power Automate cloud flow to determine whether to send an escalation email, and the system must send an alert for all invoices that are **seven days or more overdue**.
+* **Question:** Which expression should you use?
+* **Options:**
+* A. `TriggerEmail() = ‘OverdueDate’ >= 7;`
+* B. `‘OverdueDate’ >= ‘7’?’TriggerEmail()’:false`
+* C. `@GreaterOrEquals(TriggerEmail()?[‘OverdueDate’], ‘7’)`
+
+
+
+
+
+### 2. Correct Answer
+
+* **C. `@GreaterOrEquals(TriggerEmail()?[‘OverdueDate’], ‘7’)**`
+
+
+
+### 3. Verification of Visible Selection / Community Key
+
+* **Correct:** The visible key (`Answer: C`) is **Correct** because Power Automate Workflow Definition Language expressions—including trigger conditions—must begin with `@` and use prefix comparison functions (`greaterOrEquals(...)`) rather than infix operators (`>=`) or ternary syntax.
+
+
+
+### 4. Official Microsoft Justification
+
+* **Azure Logic Apps / Power Automate Workflow Definition Language (WDL):** Per Microsoft Power Automate documentation (*Use expressions in conditions to check multiple values* and *Trigger conditions*), expressions evaluated at runtime (such as trigger conditions or Condition action expressions) follow WDL syntax:
+* **Leading `@` Symbol:** Trigger conditions and raw JSON expression definitions begin with `@` to instruct the workflow engine to evaluate the expression rather than treat it as a literal string.
+* **Prefix Logical Functions (`greaterOrEquals`):** WDL does not use C#/JavaScript infix operators (`>=`, `==`, `?:`). Instead, comparisons are expressed as prefix functions taking two arguments: `greaterOrEquals(value1, value2)`, which returns `true` when the first value is greater than or equal to the second.
+* **Safe Property Access (`?['PropertyName']`):** Properties inside a trigger or action JSON payload are accessed using bracket notation with the null-conditional operator (`?['OverdueDate']`) so the expression safely evaluates to `null` rather than throwing a runtime error if the key is absent.
+
+
+
+### 5. Distractor Analysis (Why Others Are Wrong)
+
+* **A. `TriggerEmail() = ‘OverdueDate’ >= 7;`:** Uses invalid assignment (`=`), infix comparison (`>=`), and a trailing semicolon (`;`)—none of which are valid in Power Automate Workflow Definition Language.
+* **B. `‘OverdueDate’ >= ‘7’?’TriggerEmail()’:false`:** Uses JavaScript/C-style ternary syntax (`? :`) and infix operators (`>=`) without a leading `@`, and compares the literal string `'OverdueDate'` rather than extracting a property from the trigger payload.
+
+### 6. Exam Keyword / Trap Alert
+
+* **Trigger Phrase:** Whenever you see **"seven days or more"** or **"greater than or equal to"** inside a Power Automate expression question, immediately look for `@greaterOrEquals(...)` (or `greaterOrEquals(...)`) paired with safe bracket property syntax (`?['FieldName']`).
+* **Common Trap:** Dump questions occasionally capitalize function names (`GreaterOrEquals`) or use curly quotes (`‘’`) due to formatting conversion; ignore the casing/quote style and eliminate any option using infix symbols (`>=`, `==`, `&&`, `?:`).
+
+
+## Q97
+
+![Q97](/question-images/q51-100/97.png)
+
+### 1. Extracted Question Summary
+
+* **Scenario:** You are using Power Automate to create a list of customers from a Microsoft Excel file. The filtered list must include customers who meet **one** of the following criteria:
+1. Sales of less than $500,000.
+2. Customers who are on credit hold.
+
+
+* **Answer Area Expression:** `@ [Dropdown 1] (less(item()?['sales'], 500000), [Dropdown 2] )`
+* **Dropdown Options:**
+* **Dropdown 1 (Logical Operator):** `or`, `and`, `not`
+* **Dropdown 2 (Second Condition):**
+* `empty(item()?['credithold'], 'true')`
+* `equals(item()?['credithold'], 'true')`
+* `not(equals(item()?['credithold'], 'true'))`
+
+
+
+
+
+
+
+### 2. Correct Answer
+
+* **Dropdown 1:** **or**
+* **Dropdown 2:** **equals(item()?['credithold'], 'true')**
+
+
+
+### 3. Verification of Visible Selection / Community Key
+
+* **Correct:** The boxed selections in the screenshot (**`or`** and **`equals(item()?['credithold'], 'true')`**) accurately construct `@or(less(item()?['sales'], 500000), equals(item()?['credithold'], 'true'))`, matching both the inclusive "one of the following criteria" requirement and the credit hold condition.
+
+
+
+### 4. Official Microsoft Justification
+
+* **Filter Array Action & Workflow Definition Language (WDL):** Per Microsoft Power Automate documentation (*Use the Filter array action* and *Reference guide to workflow expression functions*):
+* **`or(...)` Function:** Takes two or more boolean expressions and returns `true` if **at least one** expression evaluates to `true`. Because the scenario specifies customers who meet *"one of the following criteria,"* `or` is the required logical operator.
+* **`equals(item()?['credithold'], 'true')`:** Inside a **Filter array** action, `item()` references the current JSON object being evaluated in the array (each Excel row). Excel connectors return cell values as strings in JSON payloads, so checking whether the `credithold` column equals `'true'` requires `equals(item()?['credithold'], 'true')`.
+
+
+
+### 5. Distractor Analysis (Why Others Are Wrong)
+
+* **Dropdown 1 — `and`:** Returns `true` only when *both* conditions are simultaneously satisfied (sales under $500,000 **and** on credit hold), which violates the requirement to match customers meeting *one* of the criteria.
+* **Dropdown 1 — `not`:** Is a unary logical negation function accepting only *one* boolean argument (`not(expression)`), so passing two comma-separated conditions throws a syntax/argument-count error.
+* **Dropdown 2 — `empty(item()?['credithold'], 'true')`:** Invalid syntax—the `empty(...)` function accepts only a single parameter (`empty(collectionOrString)`) to check whether a value is null or empty.
+* **Dropdown 2 — `not(equals(item()?['credithold'], 'true'))`:** Inverts the boolean result, filtering for customers who are **not** on credit hold rather than customers who *are* on credit hold.
+
+### 6. Exam Keyword / Trap Alert
+
+* **Trigger Phrases:** Watch for **"meet one of the following criteria"** (or *"either... or"*) versus **"meet all of the following criteria"**—that single phrase directly determines whether Dropdown 1 is **`or`** vs. **`and`**.
+* **Common Trap:** In Power Automate **Filter array** expressions, Excel Online (Business) rows expose column values as strings (e.g., `'true'`), which is why `equals(item()?['credithold'], 'true')` compares against the string `'true'` rather than a boolean `true`.
+
+
+## Q98
+
+![Q98](/question-images/q51-100/98.png)
+
+### 1. Extracted Question Summary
+
+* **Scenario:** A company requires configuration of an automated process that must run **synchronously** in response to a row change in Microsoft Dataverse.
+* **Question:** Which two approaches should you recommend? (Each correct answer presents a complete solution.)
+* **Options:**
+* A. automated cloud flow
+* B. instant cloud flow
+* C. low-code plugin
+* D. real-time workflow
+* E. business rule
+
+
+
+
+
+### 2. Correct Answer
+
+* **C. low-code plugin**
+* **D. real-time workflow**
+
+
+
+### 3. Verification of Visible Selection / Community Key
+
+* **Correct:** The boxed selection and visible key (`Answer: CD`) are **Correct**, because both Dataverse automated low-code plug-ins and classic real-time (synchronous) workflows execute synchronously within the Dataverse event execution pipeline in response to row events.
+
+
+
+### 4. Official Microsoft Justification
+
+* **Synchronous Execution in Dataverse:** Per Microsoft Dataverse documentation (*Use low-code plug-ins in Dataverse* / *Overview of real-time workflows*), synchronous processes run immediately within the database transaction (before or after the core operation completes) and can cancel/roll back the operation if an error occurs:
+* **Low-code plug-ins (Automated):** Built with Power Fx via the Dataverse Accelerator app, automated low-code plug-ins register directly on Dataverse table events (Create, Update, Delete) in the `PreOperation` or `PostOperation` synchronous stages of the event execution pipeline.
+* **Real-time workflows:** Classic Dataverse workflows configured to run synchronously (by clearing *Run this workflow in the background*) execute immediately in response to record creation, status/field updates, assignment, or deletion within the same transaction pipeline.
+
+
+
+### 5. Distractor Analysis (Why Others Are Wrong)
+
+* **A. automated cloud flow:** All Power Automate cloud flows execute **asynchronously** outside the Dataverse database transaction pipeline after the record change has already committed.
+* **B. instant cloud flow:** Triggered manually on demand (e.g., via a button press or Power Apps call) rather than automatically in response to a Dataverse row change, and executes asynchronously.
+* **E. business rule:** While business rules run synchronously on forms or at the entity level, they are strictly declarative field-validation/visibility/calculation rules on a single record—they are not general-purpose automated workflow processes capable of cross-table operations or complex process automation.
+
+### 6. Exam Keyword / Trap Alert
+
+* **Trigger Phrases:** **"Run synchronously in response to a row change in Microsoft Dataverse"** is the classic AB-410/PL-400 discriminator eliminating all Power Automate cloud flows (which are strictly asynchronous).
+* **Common Trap:** Candidates often dismiss **real-time workflow** because classic workflows are legacy, or dismiss **low-code plugin** thinking only C# plug-ins are synchronous—remember that in Power Platform architecture exams, both **low-code plug-ins** and **real-time workflows** are valid synchronous Dataverse automation mechanisms.
+
+
+## Q99
+
+![Q99](/question-images/q51-100/99.png)
+
+### 1. Extracted Question Summary
+
+* **Scenario:** You plan to implement Microsoft Dataverse. You must track changes for two columns in the **Account** table, maintain a **historical log of changes** for those two columns, and track **only what is necessary** (after already configuring the appropriate organization settings).
+* **Question:** Which two actions should you perform? (Each correct answer presents part of the solution.)
+* **Options:**
+* A. Enable change tracking for the two specific columns.
+* B. Enable change tracking for the Account table.
+* C. Enable auditing for the Account table.
+* D. Enable auditing for the two specific columns.
+
+
+
+
+
+### 2. Correct Answer
+
+* **C. Enable auditing for the Account table.**
+* **D. Enable auditing for the two specific columns.**
+
+### 3. Verification of Visible Selection / Community Key
+
+* **Incorrect:** The boxed selection in the screenshot (**B. Enable change tracking for the Account table**) is **Incorrect** (and only marks one choice for a two-answer question) because **Change tracking** only identifies delta changes for external data synchronization rather than maintaining a historical log of column value changes, which requires **Auditing** at both the table and column levels.
+
+### 4. Official Microsoft Justification
+
+* **Dataverse Auditing Architecture (Historical Change Log):** Per Microsoft Dataverse documentation (*Manage Dataverse auditing*), **Auditing** is the feature designed to maintain a **historical log of changes** (who changed a value, when, the old value, and the new value).
+* **Three-Tier Hierarchical Enablement:** To audit specific columns while minimizing storage overhead (*"track only what is necessary"*), auditing must be enabled across three levels:
+1. **Environment / Organization level** (*Start Auditing* — already completed in the scenario).
+2. **Table level** (**Enable auditing for the Account table** — required before individual columns on that table can be audited).
+3. **Column level** (**Enable auditing for the two specific columns** — when you enable auditing on a table, all columns default to audited unless you disable auditing on the remaining columns so only the two required columns are tracked).
+
+
+
+### 5. Distractor Analysis (Why Others Are Wrong)
+
+* **A. Enable change tracking for the two specific columns:** Invalid capability—Dataverse **Change tracking** is strictly a table-level property and cannot be configured per individual column.
+* **B. Enable change tracking for the Account table:** **Change tracking** (`RetrieveEntityChanges`) is used solely to detect which rows were created, updated, or deleted since a specific sync token for incremental ETL/synchronization—it does **not** store a historical log of old vs. new column values or who made the change.
+
+### 6. Exam Keyword / Trap Alert
+
+* **Trigger Phrases:**
+* **"Historical log of changes"** + **"track only what is necessary"** $\rightarrow$ Always **Auditing** (enabled at both **table** and **specific column** levels).
+* **"Incremental synchronization / delta export"** $\rightarrow$ **Change tracking** (table-level only).
+
+
+* **Common Trap:** Dump screenshots frequently highlight **B (Change tracking)** because the prompt begins with *"You must track changes..."*; always read the next sentence for **"maintain a historical log of changes,"** which immediately rules out Change tracking and confirms **Auditing**.
+
+
+## Q107
+
+![Q107](/question-images/q101-150/107.png)
+
+### 1. Extracted Question Summary
+
+* **Scenario:** A company integrates external systems into Power Automate by using cloud flows. They must connect to external services with different characteristics and determine whether a custom connector is required.
+* **Proposed Solution:** Create a custom connector to integrate with an **internal web service** that is **used across multiple flows** and **requires reusable actions**.
+* **Question:** Does the solution meet the goal?
+* **Options:**
+* A. Yes
+* B. No
+
+
+
+
+
+### 2. Correct Answer
+
+* **A. Yes**
+
+
+
+### 3. Verification of Visible Selection / Community Key
+
+* **Correct:** The boxed selection and visible key (**A. Yes**) are **Correct** because Microsoft recommends creating a custom connector whenever a proprietary or internal REST/SOAP API lacks a prebuilt connector, needs to be shared across multiple flows/apps, and benefits from strongly typed reusable actions and triggers.
+
+
+
+### 4. Official Microsoft Justification
+
+* **When to Build a Custom Connector:** Per Microsoft Power Platform documentation (*Custom connectors overview* and *Choose between the HTTP action and a custom connector*), while the built-in **HTTP** action works well for quick, one-off REST calls inside a single flow, creating a **Custom connector** is the recommended architectural pattern when:
+* **No prebuilt connector exists** (such as an organization's own internal line-of-business web service, which can also be reached securely via the On-premises Data Gateway if hosted on-premises).
+* **Reusability across multiple flows/apps is needed:** Custom connectors encapsulate authentication, base URLs, and OpenAPI schemas into named, strongly typed **reusable actions and triggers** with dynamic schema outputs, eliminating repeated raw HTTP configuration and manual JSON parsing across multiple flows.
+* **Governance and ALM:** Custom connectors are solution-aware components that can be packaged in Dataverse solutions, governed via Data Loss Prevention (DLP) policies, and shared across makers.
+
+
+
+### 5. Distractor Analysis (Why Others Are Wrong)
+
+* **B. No:** Incorrect because the proposed solution directly aligns with Microsoft's primary decision criteria for choosing a custom connector over a raw HTTP action—specifically wrapping a custom/internal service into reusable, strongly typed actions consumed across multiple cloud flows. (By contrast, if a sibling question in this series proposes using a custom connector for a *single, one-off webhook call* or for a service that already has a *standard prebuilt connector*, the answer would be **B. No**.)
+
+### 6. Exam Keyword / Trap Alert
+
+* **Trigger Phrases:** Look for **"used across multiple flows"** + **"requires reusable actions"** (or *"internal/custom REST API"*); these are Microsoft's textbook criteria for **Yes** on custom connectors.
+* **Series Trap:** Because this is a **Yes/No repeated-scenario question set** (notice the header warning that you cannot return to previous questions), watch closely for subtle twists in neighboring variants—such as *"used in a single flow once"* (where the standard **HTTP** action suffices $\rightarrow$ **No**) or *"integrating with Salesforce/SharePoint"* (where a **prebuilt connector** already exists $\rightarrow$ **No**).
+
+
+## Q108
+
+![Q108](/question-images/q101-150/108.png)
+
+### 1. Extracted Question Summary
+
+* **Scenario:** A company integrates external systems into Power Automate by using cloud flows. They must connect to external services with different characteristics and determine whether a custom connector is required.
+* **Proposed Solution:** Create a custom connector to call a REST API by using a **one-time HTTP action without reuse across flows**.
+* **Question:** Does the solution meet the goal?
+* **Options:**
+* A. Yes
+* B. No
+
+
+
+
+
+### 2. Correct Answer
+
+* **B. No**
+
+
+
+### 3. Verification of Visible Selection / Community Key
+
+* **Correct:** The boxed selection and visible key (**B. No**) are **Correct** because a simple, one-time REST API call without reuse across multiple flows or apps should use the built-in **HTTP** action rather than building and maintaining a custom connector.
+
+
+
+### 4. Official Microsoft Justification
+
+* **HTTP Action vs. Custom Connector Decision Criteria:** Per Microsoft Power Platform documentation (*Choose between the HTTP action and a custom connector* and *Custom connectors overview*), a custom connector is **not** required when making a single, ad-hoc REST call inside a single flow:
+* **Built-in HTTP Action:** Designed for quick, one-off REST requests (`GET`, `POST`, `PUT`, `PATCH`, `DELETE`) within an individual cloud flow where defining an OpenAPI schema, managing connector lifecycle, and sharing reusable actions across makers/flows adds unnecessary development and maintenance overhead.
+* **When a Custom Connector *Is* Justified:** Only when an API lacks a prebuilt connector *and* requires reusable, strongly typed actions/triggers shared across multiple flows, Power Apps, or Copilot Studio agents, or requires On-premises Data Gateway support / Data Loss Prevention (DLP) governance.
+
+
+
+### 5. Distractor Analysis (Why Others Are Wrong)
+
+* **A. Yes:** Incorrect because creating a custom connector specifically *"for a one-time HTTP action without reuse across flows"* introduces unnecessary architectural overhead and directly violates Microsoft's guidance on when to use the built-in **HTTP** action instead.
+
+### 6. Exam Keyword / Trap Alert
+
+* **Trigger Phrases:** **"One-time HTTP action"** + **"without reuse across flows"** $\rightarrow$ Immediately answer **B. No** (this is the exact inverse sibling to Question 107, which tested *"used across multiple flows and requires reusable actions"* $\rightarrow$ **A. Yes**).
+
+
+## Q109
+
+![109](/question-images/q101-150/109.png)
+
+
+## Q116
+![Q116](/question-images/q101-150/116.png)
+
+
+## Q117
+
+![Q117](/question-images/q101-150/117.png)
+
+### 1. Extracted Question Summary
+
+* **Scenario:** You must create a form for team members to use that provides three capabilities using Microsoft Dataverse **business rule components**:
+1. Lock a field on a form (`Lock a form field.`).
+2. Trigger business logic based on a field value (`Trigger business logic based on a field value.`).
+3. Use existing business information to enhance data entry (`Leverage existing business information to enhance data entry.`).
+
+
+* **Available Components:**
+* `Actions`
+* `Conditions`
+* `Recommendation`
+
+
+* **Visible Annotations in Screenshot:** Red text annotations next to each requirement map `Actions` $\rightarrow$ `Lock a form field.`, `Conditions` $\rightarrow$ `Trigger business logic based on a field value.`, and `Recomendation` [sic] $\rightarrow$ `Leverage existing business information to enhance data entry.`
+
+
+
+### 2. Correct Answer
+
+* **Lock a form field:** **Actions**
+* **Trigger business logic based on a field value:** **Conditions**
+* **Leverage existing business information to enhance data entry:** **Recommendation**
+
+### 3. Verification of Visible Selection / Community Key
+
+* **Correct:** The red text annotations in the screenshot (**Actions**, **Conditions**, **Recommendation**) are **Correct** because they accurately map each Dataverse business rule designer component to its exact architectural role.
+
+
+
+### 4. Official Microsoft Justification
+
+* **Dataverse Business Rule Designer Components:** Per Microsoft Dataverse documentation (*Create a business rule for a table* / *Business rule components*):
+* **Actions:** Executed once a condition evaluates to true (or false on the else branch). Supported form actions include **Lock/Unlock** (setting a column as read-only or editable), *Set visibility* (show/hide), *Set field value*, *Set default value*, *Clear field value*, *Set business required*, and *Show error message*.
+* **Conditions:** Act as the `If / Else If` branching triggers in the business rule designer, evaluating column values, operators, and business logic rules to determine whether downstream actions or recommendations fire.
+* **Recommendation:** A specialized action that displays an informational lightbulb icon next to a form column along with a custom message and an **Apply** button. Rather than forcing a value overwrite, it leverages existing business logic/information to suggest a value that the user can accept with one click or ignore to enhance data entry.
+
+
+
+### 5. Distractor Analysis (Why Others Are Wrong)
+
+* Because all three draggable components map one-to-one with the three requirements (`Actions` $\rightarrow$ locking a field, `Conditions` $\rightarrow$ evaluating field values to trigger logic, and `Recommendation` $\rightarrow$ assisting data entry with suggested values), any alternative permutation assigns a component to a behavior it cannot perform (for example, `Conditions` can only evaluate values and cannot lock fields, while `Recommendation` suggests values rather than locking a field).
+
+### 6. Exam Keyword / Trap Alert
+
+* **Trigger Phrases:**
+* **"Lock a field"** / **"Hide a field"** / **"Show error message"** $\rightarrow$ **Actions**.
+* **"Trigger business logic based on a field value"** $\rightarrow$ **Conditions**.
+* **"Enhance data entry"** / **"Suggest a value without forcing it"** $\rightarrow$ **Recommendation** (often overlooked because candidates think of Recommendations as sub-types of Actions rather than a standalone component in the Business Rule designer).
+
+
+## Q118
+
+![Q118](/question-images/q101-150/118.png)
+
+### 1. Extracted Question Summary
+
+* **Scenario:** You are troubleshooting multiple production Power Automate cloud flows that connect to Microsoft Dataverse using Microsoft Entra ID authentication.
+* **Issues to Resolve (`Troubleshoot cloud flow failures`):**
+1. A flow that has not executed for more than **90 days** fails when performing actions that rely on an existing connection configuration (`Flow fails with an existing connection.`).
+2. A flow fails for records containing **incomplete data** (`Flow fails due to incomplete data.`).
+
+
+* **Available Actions:**
+* `Configure retry policy.`
+* `Reauthenticate the connection.`
+* `Limit concurrency in trigger settings.`
+* `Add input validation or condition checks.`
+
+
+* **Visible Annotations in Screenshot:** Red text annotations in the Answer Area match `Reauthenticate the connection` to `Flow fails with an existing connection.` and `Add input validation or condition checks` to `Flow fails due to incomplete data.`
+
+
+
+### 2. Correct Answer
+
+* **Flow fails with an existing connection:** **Reauthenticate the connection.**
+* **Flow fails due to incomplete data:** **Add input validation or condition checks.**
+
+### 3. Verification of Visible Selection / Community Key
+
+* **Correct:** The red text annotations in the screenshot (**Reauthenticate the connection** and **Add input validation or condition checks**) are **Correct** because Microsoft Entra ID OAuth refresh tokens expire after 90 days of inactivity (requiring connection reauthentication), and missing/null record fields require defensive validation or condition checks before downstream actions execute.
+
+
+
+### 4. Official Microsoft Justification
+
+* **90-Day Inactivity OAuth Token Expiration (`Reauthenticate the connection`):** Per Microsoft Entra ID and Power Automate connector authentication documentation (*Manage connections in Power Automate* / *Configurable token lifetimes in Microsoft Entra ID*), default Microsoft Entra ID refresh tokens have an inactive sliding expiration window of **90 days**. When a cloud flow goes unexecuted for more than 90 days, the stored connection's OAuth token expires and cannot be silently refreshed, causing connector actions to fail with authentication/authorization errors until the connection is manually **reauthenticated** (via the *Fix connection* prompt in the Connections blade or flow details page).
+* **Defensive Handling of Missing/Null Values (`Add input validation or condition checks`):** Per Power Automate error-handling and expression best practices, actions fail at runtime when required inputs are `null`, empty, or malformed (for example, passing an empty string to an integer/date parameter or dereferencing a missing lookup property). Adding **input validation or condition checks** (such as `empty(...)` checks in a Condition control or `coalesce(...)` fallback expressions) ensures incomplete records are caught and handled gracefully before failing downstream actions.
+
+### 5. Distractor Analysis (Why Others Are Wrong)
+
+* **Configure retry policy:** Retries transient HTTP errors (such as `408`, `429`, or `5xx` service timeouts). Retrying an expired 90-day OAuth token or deterministic incomplete record data will simply fail repeatedly with the exact same authentication or bad-request error.
+* **Limit concurrency in trigger settings:** Throttles how many flow runs execute in parallel to prevent API rate-limiting (`429 Too Many Requests`), which neither refreshes an expired Microsoft Entra ID connection token nor validates incomplete record fields.
+
+### 6. Exam Keyword / Trap Alert
+
+* **Trigger Phrases:**
+* **"Has not executed for more than 90 days"** + **"existing connection"** $\rightarrow$ Immediately select **Reauthenticate the connection** (the 90-day Microsoft Entra ID refresh token inactivity window is a classic Microsoft certification test point).
+* **"Records containing incomplete data"** $\rightarrow$ **Add input validation or condition checks** (never use a retry policy for bad/incomplete input data).
+
+
+## Q119
+
+![Q119](/question-images/q101-150/119.png)
+
+### 1. Extracted Question Summary
+
+* **Scenario:** A company builds a canvas app that processes images submitted by users and must classify them using an existing AI Builder model. The app must generate predictions **during user interaction**, and you need to **consume the AI model natively**.
+* **Question:** What should you do?
+* **Options:**
+* A. Refine the model with additional images.
+* B. Invoke the model by using Power Fx.
+* C. Export the solution which contains the model.
+* D. Retrain the model for each submission.
+
+
+
+
+
+### 2. Correct Answer
+
+* **B. Invoke the model by using Power Fx.**
+
+
+
+### 3. Verification of Visible Selection / Community Key
+
+* **Correct:** The boxed selection and visible key (**B. Invoke the model by using Power Fx**, marked `Most Voted` and `Answer: B`) are **Correct** because Power Apps canvas apps natively connect to published AI Builder models as data sources and invoke their `.Predict(...)` method directly via Power Fx formulas during interactive user sessions.
+
+
+
+### 4. Official Microsoft Justification
+
+* **Native AI Builder Consumption via Power Fx:** Per Microsoft Power Apps and AI Builder documentation (*Use AI Builder models in Power Apps* / *Use Power Fx in AI Builder models*), published AI Builder models (including custom Image Classification / Object Detection models and prebuilt models) can be added directly into a canvas app via the **Data** pane (`Add data` $\rightarrow$ `AI models`).
+* **Real-Time Inference (`ModelName.Predict(...)`):** Once added as a native data source, makers call the model directly inside interactive control properties (such as a button's `OnSelect` or an image control's `OnChange`) using a Power Fx expression (e.g., `'MyImageClassifier'.Predict(UploadedImage1.Image)`), returning classification predictions (`Prediction`, `Confidence`, `TagName`) synchronously during user interaction without requiring an intermediate Power Automate flow.
+
+### 5. Distractor Analysis (Why Others Are Wrong)
+
+* **A. Refine the model with additional images:** Improves training accuracy prior to publishing, rather than consuming an already-existing model natively inside the canvas app at runtime.
+* **C. Export the solution which contains the model:** Packages the AI model for Application Lifecycle Management (ALM) transport to another environment; exporting a solution does not invoke the model during user interaction in a canvas app.
+* **D. Retrain the model for each submission:** Submitting an image at runtime is **inference** (prediction), not model training—retraining on every user submission is architecturally invalid, slow, and unnecessary.
+
+### 6. Exam Keyword / Trap Alert
+
+* **Trigger Phrases:** **"Canvas app"** + **"predictions during user interaction"** + **"consume the AI model natively"** $\rightarrow$ Always select **Invoke the model by using Power Fx** (via the `.Predict()` method).
+* **Common Trap:** Candidates sometimes look for a Power Automate flow option or legacy AI Builder component controls; remember that in modern Power Apps canvas apps, calling `AIModel.Predict(...)` in **Power Fx** is Microsoft's primary native consumption pattern.
+
+
+## Q120
+
+![Q120](/question-images/q101-150/120.png)
+
+### 1. Extracted Question Summary
+
+* **Scenario:** You are configuring the **Accounts** table in Microsoft Dataverse. When users create a new account, the **category** column must automatically be set to **Standard** **when the form loads**.
+* **Task:** Select and arrange three actions in the correct sequence to implement the configuration.
+* **Available Actions:**
+* `Create a Power Automate cloud flow.`
+* `Activate the process.`
+* `Create a classic workflow.`
+* `Add a Set Default value action.`
+* `Create a business rule.`
+* `Add a Set Field Value action.`
+
+
+
+
+
+### 2. Correct Answer
+
+1. **Create a business rule.**
+2. **Add a Set Default value action.**
+3. **Activate the process.**
+
+### 4. Official Microsoft Justification
+
+* **Client-Side Form Load Initialization via Business Rules:** Per Microsoft Dataverse documentation (*Create a business rule for a table* / *Business rule actions*), Dataverse business rules run synchronously client-side when a model-driven app form loads (`OnLoad`) and whenever referenced column values change (`OnChange`).
+* **`Set Default value` vs. `Set Field Value`:**
+* **Set Default value:** Specifically initializes a column's value **only when the column currently contains no data (is empty/null)**—making it the exact action designed to populate a default value (such as setting *Category* to *Standard*) upon creating a new record when the form loads, without overwriting an existing value if a user later opens or edits the record.
+* **Activation Requirement:** Newly created business rules remain in a *Draft* state and do not execute on forms until you validate and **Activate** the business rule process.
+
+
+
+### 5. Distractor Analysis (Why Others Are Wrong)
+
+* **Create a Power Automate cloud flow:** Cloud flows execute asynchronously on the server *after* a record is already created or updated; they cannot pre-populate fields interactively on screen *"when the form loads"* before the user saves.
+* **Create a classic workflow:** Classic Dataverse workflows run on the server upon record lifecycle events (Create, Update, Assign, Delete), not client-side when a blank creation form first loads in the UI.
+* **Add a Set Field Value action:** Unconditionally overwrites the target column every time the condition evaluates to true, rather than selectively applying a default value only when the field is initially blank on a new record.
+
+### 6. Exam Keyword / Trap Alert
+
+* **Trigger Phrases:**
+* **"When users create a new account... when the form loads"** $\rightarrow$ Immediately choose **Create a business rule** (eliminating server-side flows and workflows).
+* **"Default value on a new record"** $\rightarrow$ Pair **Add a Set Default value action** (which only sets empty fields) rather than **Add a Set Field Value action** (which overwrites existing values).
+
+
+## Q121
+
+![Q121](/question-images/q101-150/121.png)
+
+### 1. Extracted Question Summary
+
+* **Scenario:** A company uses a Business Process Flow (BPF) to manage sales opportunities with two branching requirements:
+1. Follow one path when estimated revenue is below a threshold and a different path when estimated revenue meets or exceeds that threshold (`Define the rule that determines which branch is used.`).
+2. If estimated revenue is above a threshold, allow users to enter data into additional columns and trigger a Power Automate cloud flow before moving forward (`Enter data and trigger a Power Automate cloud flow.`).
+
+
+* **Available Configurations:**
+* `Stage`
+* `Data step`
+* `Condition step`
+* `Power Automate cloud flow step`
+
+
+* **Visible Annotations in Screenshot:** Red text annotations in the Answer Area match `Condition Step` to `Define the rule that determines which branch is used.` and `Power Automate Cloud Flow Step` to `Enter data and trigger a Power Automate cloud flow.`
+
+
+
+### 2. Correct Answer
+
+* **Define the rule that determines which branch is used:** **Condition step**
+* **Enter data and trigger a Power Automate cloud flow:** **Stage** *(Note: see verification below regarding the visible dump key)*
+
+### 3. Verification of Visible Selection / Community Key
+
+* **Incorrect / Disputed:** While the first red annotation (**Condition step**) is **Correct**, the second red annotation (**Power Automate Cloud Flow Step**) is **Incorrect/Incomplete** because a **Power Automate cloud flow step** only triggers an instant flow—it cannot hold data entry columns on its own, whereas a **Stage** is the container in a Business Process Flow branch that holds both **Data steps** (for entering data into additional columns) and **Flow steps** (for triggering a Power Automate cloud flow) before advancing.
+
+### 4. Official Microsoft Justification
+
+* **Conditional Branching (`Condition step`):** Per Microsoft Power Automate / Dataverse documentation (*Enhance business process flows with branching*), a **Condition step** (`If / Else`) evaluates column values on the current stage (such as `Estimated Revenue >= Threshold`) to dynamically determine which subsequent branch of stages is rendered in the Business Process Flow.
+* **Branch Target Container (`Stage`):** In the Business Process Flow designer, a **Condition step** cannot branch directly to a standalone step—every branch (`Yes` / `No`) must lead into a **Stage**. Inside that target **Stage**, you add **Data steps** (so users can enter data into additional columns) alongside a **Power Automate cloud flow step** (to invoke an instant flow on demand) before progressing to the next stage.
+
+### 5. Distractor Analysis (Why Others Are Wrong)
+
+* **Data step:** Renders a single column input field inside a stage; it cannot branch the process flow or trigger a Power Automate cloud flow.
+* **Power Automate cloud flow step:** Allows users to click a button inside a stage to run an on-demand instant cloud flow, but it cannot display or capture input fields for *"enter data into additional columns"*—nor can a Condition branch point directly to a Flow step without an enclosing **Stage**.
+
+### 6. Exam Keyword / Trap Alert
+
+* **Trigger Phrases:**
+* **"Determines which branch is used"** $\rightarrow$ **Condition step**.
+* **"Enter data into additional columns AND trigger a Power Automate cloud flow before moving forward"** $\rightarrow$ Look for the enclosing container (**Stage**), because only a **Stage** can contain *both* Data steps and a Flow step in a conditional branch.
+
+
+* **Common Trap:** Dump keys frequently pick **Power Automate cloud flow step** for the second slot by latching onto the words *"trigger a Power Automate cloud flow"* while ignoring *"enter data into additional columns"* and the BPF structural rule that branches always point to a **Stage**.
+
+
+## Q122
+
+![Q122](/question-images/q101-150/122.png)
+
+### 1. Extracted Question Summary
+
+* **Scenario:** A company builds a canvas app that users use to enter customer feedback and plans to use a preexisting custom prompt to summarize the feedback within the app.
+* **Requirements & Dropdown Options (`Use a custom prompt in a canvas app`):**
+* **Add the prompt to the app:**
+* `Data`
+* `Control`
+* `Variable`
+* `Media`
+
+
+* **Use a function to access prompt results:**
+* `ClearCollect()`
+* `Find()`
+* `Predict()`
+* `Patch()`
+
+
+
+
+
+
+
+### 2. Correct Answer
+
+* **Add the prompt to the app:** **Data**
+* **Use a function to access prompt results:** **Predict()**
+
+### 4. Official Microsoft Justification
+
+* **Adding Custom Prompts via the Data Pane (`Data`):** Per Microsoft Power Apps and AI Builder documentation (*Use your prompt in Power Apps* / *Use Power Fx in AI Builder models*), preexisting AI Builder / Power Platform custom prompts are exposed as data sources in Power Apps Studio. To consume a prompt inside a canvas app, you open the **Data** tab on the left authoring pane, select **Add data**, expand **AI models**, and select the custom prompt.
+* **Invoking the Prompt and Reading Results (`Predict()`):** Once added as a data source, you execute the custom prompt in Power Fx by calling its `.Predict(...)` method (for example, `Set(varSummary, 'Summarize Feedback'.Predict(TextInput1.Text).Text)`), which passes the required input parameters to the prompt and returns the generated response object.
+
+### 5. Distractor Analysis (Why Others Are Wrong)
+
+* **Dropdown 1 — `Control`:** Adds visual UI elements (buttons, text inputs, galleries, labels) onto the canvas screen, not backend AI Builder custom prompts.
+* **Dropdown 1 — `Variable`:** Displays and inspects global (`Set`) and context (`UpdateContext`) variables defined in the app, rather than importing external data sources or AI models.
+* **Dropdown 1 — `Media`:** Used for uploading static images, audio, and video assets into the app package, not connecting to AI models.
+* **Dropdown 2 — `ClearCollect()`:** Creates or replaces records in an in-memory local Power Apps collection; while it can store the output returned by `Predict()`, it does not invoke or retrieve results from an AI prompt on its own.
+* **Dropdown 2 — `Find()`:** A Power Fx string function that returns the starting character position of one text string inside another.
+* **Dropdown 2 — `Patch()`:** Modifies or creates records in a tabular data source (such as Dataverse or SharePoint), rather than executing an AI Builder custom prompt.
+
+### 6. Exam Keyword / Trap Alert
+
+* **Trigger Phrases:**
+* **"Preexisting custom prompt"** + **"Add the prompt to the app"** $\rightarrow$ **Data** (all AI Builder models and custom prompts are added through the **Data** pane).
+* **"Access the result of the prompt by using Power Fx"** $\rightarrow$ Always **`Predict()`** (every AI Builder model and custom prompt exposes `.Predict()` in Power Fx).
+
+
+## Q123
+
+![Q123](/question-images/q101-150/123.png)
+
+### 1. Extracted Question Summary
+
+* **Scenario:** A company is deploying multiple AI-enabled Power Platform solutions across teams with three administrative requirements:
+* Administrators require **centralized insights and governance**.
+* Solutions must follow **automated lifecycle practices without reliance on external tooling**.
+* Existing and new environments must **enforce governance policies**.
+
+
+* **Question:** What environment type should you recommend?
+* **Options:**
+* A. Sandbox
+* B. Developer
+* C. Managed
+* D. Production
+
+
+
+
+
+### 2. Correct Answer
+
+* **C. Managed**
+
+
+
+### 3. Verification of Visible Selection / Community Key
+
+* **Correct:** The boxed selection and visible key (**C. Managed**, marked `Most Voted` and `Answer: C`) are **Correct** because **Managed Environments** unlock native Power Platform Pipelines (automated ALM without external CI/CD tools), weekly admin digest insights, sharing limits, and environment-group governance policies across existing and new environments.
+
+
+
+### 4. Official Microsoft Justification
+
+* **Managed Environments Capabilities:** Per Microsoft Power Platform administration and governance documentation (*Managed Environments overview*), enabling **Managed Environments** overlays enterprise-grade governance, visibility, and built-in ALM onto standard environment types (Production, Sandbox, Developer):
+* **Centralized Insights and Governance:** Provides out-of-the-box weekly admin email digests, active usage/licensing telemetry in the Power Platform admin center, maker welcome content, solution checker enforcement, and granular sharing limits on canvas apps and solution flows.
+* **Built-In Automated ALM (`Pipelines in Power Platform`):** Enables native **Pipelines in Power Platform** so makers and admins can automate solution deployments across Dev, Test, and Production environments directly inside Power Platform without configuring external Azure DevOps or GitHub Actions tooling.
+* **Environment Groups & Policy Enforcement:** Allows administrators to group existing and newly provisioned environments under unified governance rules and tenant-level environment routing policies.
+
+
+
+### 5. Distractor Analysis (Why Others Are Wrong)
+
+* **A. Sandbox:** A non-production environment type used for development, testing, and staging (supporting copy and reset operations), which does not by itself enable native Power Platform Pipelines, admin insights, or governance policy enforcement unless designated as a **Managed** environment.
+* **B. Developer:** A free, single-user environment tied to the Power Apps Developer Plan for individual maker learning and experimentation; it cannot be shared for team-wide production deployments or provide centralized tenant governance.
+* **D. Production:** The standard environment type intended for live business workloads; without enabling **Managed Environment** capabilities on it, a standard Production environment lacks native Power Platform Pipelines, sharing restrictions, and automated admin governance insights.
+
+### 6. Exam Keyword / Trap Alert
+
+* **Trigger Phrases:** **"Centralized insights and governance"** + **"automated lifecycle practices without reliance on external tooling"** (referring to native **Power Platform Pipelines**) $\rightarrow$ Always select **Managed** (Managed Environments).
+* **Common Trap:** Candidates sometimes hesitate to pick **Managed** because technically Managed Environments is a *governance designation/suite* applied on top of Sandbox, Production, or Developer environments rather than a standalone base tier—on Microsoft exams, **Managed** is routinely listed alongside Sandbox, Developer, and Production whenever governance, sharing limits, or native Pipelines are tested.
+
+
+## Q124
+
+
+
 
